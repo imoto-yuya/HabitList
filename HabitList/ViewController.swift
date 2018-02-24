@@ -20,6 +20,8 @@ class ViewController: UIViewController, UITableViewDataSource {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
         self.taskTableView.dataSource = self
+        // ナビゲーションバーに編集ボタンを追加
+        self.navigationItem.setRightBarButton(self.editButtonItem, animated: true)
     }
 
     override func didReceiveMemoryWarning() {
@@ -41,5 +43,11 @@ class ViewController: UIViewController, UITableViewDataSource {
         return cell
     }
 
+    override func setEditing(_ editing: Bool, animated: Bool) {
+        super.setEditing(editing, animated: true)
+
+        // 自分が持っているテーブルビューのeditingを更新する
+        self.taskTableView.setEditing(editing, animated: animated)
+    }
 }
 

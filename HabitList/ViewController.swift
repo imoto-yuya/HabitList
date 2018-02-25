@@ -8,7 +8,7 @@
 
 import UIKit
 
-class ViewController: UIViewController, UITableViewDataSource {
+class ViewController: UIViewController {
 
     // MARK: - Properties
 
@@ -39,20 +39,6 @@ class ViewController: UIViewController, UITableViewDataSource {
         // Dispose of any resources that can be recreated.
     }
 
-    // MARK: - Table View Data Source
-
-    // セル数を決める
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return self.strings.count
-    }
-
-    // セルの内容を決める
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = UITableViewCell()
-        cell.textLabel?.text = self.strings[indexPath.row]
-        return cell
-    }
-
     override func setEditing(_ editing: Bool, animated: Bool) {
         super.setEditing(editing, animated: true)
 
@@ -69,6 +55,7 @@ class ViewController: UIViewController, UITableViewDataSource {
     }
 
     @objc func plusButtonTapped(_ sender: Any) {
+
         //あらかじめデータソースを編集しておく。
         self.strings.insert("added content", at: 0)
 
@@ -87,3 +74,19 @@ class ViewController: UIViewController, UITableViewDataSource {
     }
 }
 
+extension ViewController: UITableViewDataSource {
+
+    // MARK: - Table View Data Source
+
+    // セル数を決める
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return self.strings.count
+    }
+
+    // セルの内容を決める
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = UITableViewCell()
+        cell.textLabel?.text = self.strings[indexPath.row]
+        return cell
+    }
+}

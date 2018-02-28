@@ -7,27 +7,25 @@
 //
 
 import UIKit
+import CoreData
 
-class ViewController: UIViewController {
+class ViewController: UIViewController, UITableViewDelegate {
 
     // MARK: - Properties
 
     @IBOutlet weak var taskTableView: UITableView!
     var plusButton: UIBarButtonItem?
-    var strings = [String]()
+    var tasks:[Task] = []
+    var tasksToShow:[String] = []
 
     // MARK: - View Life Cycle
 
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
-        //データの準備
-        self.strings.append("aaa")
-        self.strings.append("bbb")
-        self.strings.append("ccc")
-        self.strings.append("ddd")
-        self.strings.append("eee")
+
         self.taskTableView.dataSource = self
+        self.taskTableView.delegate = self
         // ナビゲーションバーに編集ボタンを追加
         self.navigationItem.setRightBarButton(self.editButtonItem, animated: true)
         //追加ボタンをプロパティとして持つ
@@ -55,22 +53,40 @@ class ViewController: UIViewController {
     }
 
     @objc func plusButtonTapped(_ sender: Any) {
+        // タスク追加用のViewに遷移する
+        let storyboard = self.storyboard!
+        let nextView = storyboard.instantiateViewController(withIdentifier: "addTaskViewController")
+        self.present(nextView, animated: true, completion: nil)
+    }
 
-        //あらかじめデータソースを編集しておく。
-        self.strings.insert("added content", at: 0)
+    override func viewWillAppear(_ animated: Bool) {
+        // CoreDataからデータをfetchしてくる
+        getData()
 
-        //テーブルビュー挿入開始
-        self.taskTableView.beginUpdates()
+        // taskTableViewを再読み込みする
+        taskTableView.reloadData()
+    }
 
-        //挿入するIndexPath
-        var paths = [IndexPath]()
-        paths.append(IndexPath(row: 0, section: 0))
+    // MARK: - Method of Getting data from Core Data
 
-        //挿入処理
-        self.taskTableView.insertRows(at: paths, with: .automatic)
+    func getData() {
+        // データ保存時と同様にcontextを定義
+        let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
+        do {
+            // CoreDataからデータをfetchしてtasksに格納
+            let fetchRequest: NSFetchRequest<Task> = Task.fetchRequest()
+            tasks = try context.fetch(fetchRequest)
 
-        //テーブルビュー挿入終了
-        self.taskTableView.endUpdates()
+            // tasksToShow配列を空にする。（同じデータを複数表示しないため）
+            tasksToShow = []
+
+            // 先ほどfetchしたデータをtasksToShow配列に格納する
+            for task in tasks {
+                tasksToShow.append(task.name!)
+            }
+        } catch {
+            print("Fetching Failed.")
+        }
     }
 }
 
@@ -80,13 +96,13 @@ extension ViewController: UITableViewDataSource {
 
     // セル数を決める
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return self.strings.count
+        return self.tasksToShow.count
     }
 
     // セルの内容を決める
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = UITableViewCell()
-        cell.textLabel?.text = self.strings[indexPath.row]
+        cell.textLabel?.text = self.tasksToShow[indexPath.row]
         return cell
     }
 }

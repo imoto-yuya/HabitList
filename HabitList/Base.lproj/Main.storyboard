@@ -53,6 +53,80 @@
             </objects>
             <point key="canvasLocation" x="476" y="132.68365817091455"/>
         </scene>
+        <!--Add Task View Controller-->
+        <scene sceneID="h5A-0s-Ihx">
+            <objects>
+                <viewController storyboardIdentifier="addTaskViewController" id="EbR-K5-pCC" customClass="AddTaskViewController" customModule="HabitList" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="el1-o4-oIc">
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Add Task" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="WHR-IY-AsQ">
+                                <rect key="frame" x="20" y="40" width="125" height="30"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="30" id="GYs-5C-glS"/>
+                                    <constraint firstAttribute="width" constant="125" id="S8B-fp-Qvg"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="system" pointSize="26"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="ONG-fc-G6K">
+                                <rect key="frame" x="20" y="100" width="335" height="35"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="35" id="PRO-kU-kvA"/>
+                                </constraints>
+                                <nil key="textColor"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="26"/>
+                                <textInputTraits key="textInputTraits"/>
+                            </textField>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="JNu-Iv-u3J">
+                                <rect key="frame" x="20" y="165" width="80" height="30"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="80" id="PdP-7U-Wse"/>
+                                    <constraint firstAttribute="height" constant="30" id="lL2-6Y-OdF"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="system" pointSize="26"/>
+                                <state key="normal" title="Back"/>
+                                <connections>
+                                    <action selector="backButtonTapped:" destination="EbR-K5-pCC" eventType="touchUpInside" id="Z85-Y0-ne3"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Ypz-YM-hEP">
+                                <rect key="frame" x="275" y="165" width="80" height="30"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="30" id="DAx-eD-aal"/>
+                                    <constraint firstAttribute="width" constant="80" id="z3Z-Ur-1oD"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="system" pointSize="26"/>
+                                <state key="normal" title="OK"/>
+                                <connections>
+                                    <action selector="okButtonTapped:" destination="EbR-K5-pCC" eventType="touchUpInside" id="83A-va-a3R"/>
+                                </connections>
+                            </button>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <constraints>
+                            <constraint firstItem="JNu-Iv-u3J" firstAttribute="leading" secondItem="chN-nX-5yr" secondAttribute="leading" constant="20" id="1aO-jM-yrq"/>
+                            <constraint firstItem="ONG-fc-G6K" firstAttribute="leading" secondItem="chN-nX-5yr" secondAttribute="leading" constant="20" id="56B-SW-q2a"/>
+                            <constraint firstItem="Ypz-YM-hEP" firstAttribute="top" secondItem="ONG-fc-G6K" secondAttribute="bottom" constant="30" id="ERT-Gf-Smc"/>
+                            <constraint firstItem="ONG-fc-G6K" firstAttribute="top" secondItem="WHR-IY-AsQ" secondAttribute="bottom" constant="30" id="NPQ-TU-qgE"/>
+                            <constraint firstItem="chN-nX-5yr" firstAttribute="trailing" secondItem="ONG-fc-G6K" secondAttribute="trailing" constant="20" id="StK-KA-de7"/>
+                            <constraint firstItem="WHR-IY-AsQ" firstAttribute="leading" secondItem="chN-nX-5yr" secondAttribute="leading" constant="20" id="XTv-A8-Cfe"/>
+                            <constraint firstItem="chN-nX-5yr" firstAttribute="trailing" secondItem="Ypz-YM-hEP" secondAttribute="trailing" constant="20" id="dIn-Nc-BBv"/>
+                            <constraint firstItem="WHR-IY-AsQ" firstAttribute="top" secondItem="chN-nX-5yr" secondAttribute="top" constant="20" id="iF5-OR-LAB"/>
+                            <constraint firstItem="JNu-Iv-u3J" firstAttribute="top" secondItem="ONG-fc-G6K" secondAttribute="bottom" constant="30" id="kbm-pD-xsd"/>
+                        </constraints>
+                        <viewLayoutGuide key="safeArea" id="chN-nX-5yr"/>
+                    </view>
+                    <connections>
+                        <outlet property="taskNameTextField" destination="ONG-fc-G6K" id="gEk-1n-vVq"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="S1S-X7-LrJ" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1162.4000000000001" y="133.5832083958021"/>
+        </scene>
         <!--Navigation Controller-->
         <scene sceneID="aKe-bh-UTX">
             <objects>

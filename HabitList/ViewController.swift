@@ -7,27 +7,24 @@
 //
 
 import UIKit
+import CoreData
 
-class ViewController: UIViewController {
+class ViewController: UIViewController, UITableViewDelegate {
 
     // MARK: - Properties
 
     @IBOutlet weak var taskTableView: UITableView!
     var plusButton: UIBarButtonItem?
-    var strings = [String]()
+    var tasks = [Task]()
+    var tasksToShow = [String]()
 
     // MARK: - View Life Cycle
 
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
-        //データの準備
-        self.strings.append("aaa")
-        self.strings.append("bbb")
-        self.strings.append("ccc")
-        self.strings.append("ddd")
-        self.strings.append("eee")
         self.taskTableView.dataSource = self
+        self.taskTableView.delegate = self
         // ナビゲーションバーに編集ボタンを追加
         self.navigationItem.setRightBarButton(self.editButtonItem, animated: true)
         //追加ボタンをプロパティとして持つ
@@ -55,14 +52,22 @@ class ViewController: UIViewController {
     }
 
     @objc func plusButtonTapped(_ sender: Any) {
-        let alertController = UIAlertController(title: "Add task", message: "Please input task", preferredStyle: UIAlertControllerStyle.alert)
+        let alertController = UIAlertController(title: "Add Task", message: "Please input task", preferredStyle: UIAlertControllerStyle.alert)
         alertController.addTextField(configurationHandler: nil)
 
         // Addボタンを追加
-        let addAction = UIAlertAction(title: "Add", style: UIAlertActionStyle.default) { (action: UIAlertAction) in
+        let addAction = UIAlertAction(title: "ADD", style: UIAlertActionStyle.default) { (action: UIAlertAction) in
             if let textField = alertController.textFields?.first {
-                self.strings.insert(textField.text!, at: 0)
+                self.tasksToShow.insert(textField.text!, at: 0)
                 self.taskTableView.insertRows(at: [IndexPath(row: 0, section:0)], with: UITableViewRowAnimation.right)
+                let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
+
+                // taskにTask(データベースのエンティティです)型オブジェクトを代入
+                let task = Task(context: context)
+                // 先ほど定義したTask型データのnameプロパティに入力、選択したデータを代入
+                task.name = textField.text!
+                // 上で作成したデータをデータベースに保存。
+                (UIApplication.shared.delegate as! AppDelegate).saveContext()
             }
         }
         alertController.addAction(addAction)
@@ -73,6 +78,37 @@ class ViewController: UIViewController {
 
         present(alertController, animated: true, completion: nil)
     }
+
+    override func viewWillAppear(_ animated: Bool) {
+        // CoreDataからデータをfetchしてくる
+        getData()
+
+        // taskTableViewを再読み込みする
+        taskTableView.reloadData()
+    }
+
+    // MARK: - Method of Getting data from Core Data
+
+    func getData() {
+        // データ保存時と同様にcontextを定義
+        let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
+        do {
+            // CoreDataからデータをfetchしてtasksに格納
+            let fetchRequest: NSFetchRequest<Task> = Task.fetchRequest()
+            tasks = try context.fetch(fetchRequest)
+
+            // tasksToShow配列を空にする。（同じデータを複数表示しないため）
+            tasksToShow = []
+
+            // 先ほどfetchしたデータをtasksToShow配列に格納する
+            for task in tasks {
+                tasksToShow.insert(task.name!, at: 0)
+            }
+
+        } catch {
+            print("Fetching Failed.")
+        }
+    }
 }
 
 extension ViewController: UITableViewDataSource {
@@ -81,13 +117,13 @@ extension ViewController: UITableViewDataSource {
 
     // セル数を決める
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return self.strings.count
+        return self.tasksToShow.count
     }
 
     // セルの内容を決める
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = UITableViewCell()
-        cell.textLabel?.text = self.strings[indexPath.row]
+        cell.textLabel?.text = self.tasksToShow[indexPath.row]
         return cell
     }
 }

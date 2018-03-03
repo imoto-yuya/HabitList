@@ -55,22 +55,23 @@ class ViewController: UIViewController {
     }
 
     @objc func plusButtonTapped(_ sender: Any) {
+        let alertController = UIAlertController(title: "Add task", message: "Please input task", preferredStyle: UIAlertControllerStyle.alert)
+        alertController.addTextField(configurationHandler: nil)
 
-        //あらかじめデータソースを編集しておく。
-        self.strings.insert("added content", at: 0)
+        // Addボタンを追加
+        let addAction = UIAlertAction(title: "Add", style: UIAlertActionStyle.default) { (action: UIAlertAction) in
+            if let textField = alertController.textFields?.first {
+                self.strings.insert(textField.text!, at: 0)
+                self.taskTableView.insertRows(at: [IndexPath(row: 0, section:0)], with: UITableViewRowAnimation.right)
+            }
+        }
+        alertController.addAction(addAction)
 
-        //テーブルビュー挿入開始
-        self.taskTableView.beginUpdates()
+        // Cancelボタンを追加
+        let cancelAction = UIAlertAction(title: "CANCEL", style: UIAlertActionStyle.cancel, handler: nil)
+        alertController.addAction(cancelAction)
 
-        //挿入するIndexPath
-        var paths = [IndexPath]()
-        paths.append(IndexPath(row: 0, section: 0))
-
-        //挿入処理
-        self.taskTableView.insertRows(at: paths, with: .automatic)
-
-        //テーブルビュー挿入終了
-        self.taskTableView.endUpdates()
+        present(alertController, animated: true, completion: nil)
     }
 }
 

@@ -126,4 +126,38 @@ extension ViewController: UITableViewDataSource {
         cell.textLabel?.text = self.tasksToShow[indexPath.row]
         return cell
     }
+
+    // 全セルの削除許可
+    func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
+        return true
+    }
+
+    // セルの削除処理
+    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
+        let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
+
+        if editingStyle == .delete {
+            // 削除したいデータのみをfetchする
+            // 削除したいデータのcategoryとnameを取得
+            let deletedName = tasksToShow[indexPath.row]
+            // 先ほど取得したcategoryとnameに合致するデータのみをfetchするようにfetchRequestを作成
+            let fetchRequest: NSFetchRequest<Task> = Task.fetchRequest()
+            fetchRequest.predicate = NSPredicate(format: "name = %@", deletedName)
+            // そのfetchRequestを満たすデータをfetchしてtask（配列だが要素を1種類しか持たない）に代入し、削除する
+            do {
+                let task = try context.fetch(fetchRequest)
+                context.delete(task[0])
+            } catch {
+                print("Fetching Failed.")
+            }
+
+            // 削除したあとのデータを保存する
+            (UIApplication.shared.delegate as! AppDelegate).saveContext()
+
+            // 削除後の全データをfetchする
+            getData()
+        }
+        // taskTableViewを再読み込みする
+        taskTableView.reloadData()
+    }
 }

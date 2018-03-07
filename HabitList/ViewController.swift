@@ -9,7 +9,7 @@
 import UIKit
 import CoreData
 
-class ViewController: UIViewController, UITableViewDelegate {
+class ViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
 
     // MARK: - Properties
 
@@ -27,7 +27,7 @@ class ViewController: UIViewController, UITableViewDelegate {
         self.taskTableView.delegate = self
         // ナビゲーションバーに編集ボタンを追加
         self.navigationItem.setRightBarButton(self.editButtonItem, animated: true)
-        //追加ボタンをプロパティとして持つ
+        // 追加ボタンをプロパティとして持つ
         self.plusButton = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(plusButtonTapped(_:)))
     }
 
@@ -44,7 +44,7 @@ class ViewController: UIViewController, UITableViewDelegate {
 
         // 通常・編集モードの切り替え
         if editing {
-            //プラスボタンをナビゲーションバーの左側へ表示させる。
+            // プラスボタンをナビゲーションバーの左側へ表示させる。
             self.navigationItem.setLeftBarButton(self.plusButton, animated: true)
         } else {
             self.navigationItem.setLeftBarButton(nil, animated: true)
@@ -52,8 +52,10 @@ class ViewController: UIViewController, UITableViewDelegate {
     }
 
     @objc func plusButtonTapped(_ sender: Any) {
-        let alertController = UIAlertController(title: "Add Task", message: "Please input task", preferredStyle: UIAlertControllerStyle.alert)
-        alertController.addTextField(configurationHandler: nil)
+        let alertController = UIAlertController(title: "Add Task", message: "", preferredStyle: UIAlertControllerStyle.alert)
+        alertController.addTextField(configurationHandler: {(textField: UITextField!) -> Void in
+            textField.placeholder = "Input Task"
+        })
 
         // Addボタンを追加
         let addAction = UIAlertAction(title: "ADD", style: UIAlertActionStyle.default) { (action: UIAlertAction) in
@@ -61,7 +63,6 @@ class ViewController: UIViewController, UITableViewDelegate {
                 self.tasksToShow.insert(textField.text!, at: 0)
                 self.taskTableView.insertRows(at: [IndexPath(row: 0, section:0)], with: UITableViewRowAnimation.right)
                 let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
-
                 // taskにTask(データベースのエンティティです)型オブジェクトを代入
                 let task = Task(context: context)
                 // 先ほど定義したTask型データのnameプロパティに入力、選択したデータを代入
@@ -109,9 +110,6 @@ class ViewController: UIViewController, UITableViewDelegate {
             print("Fetching Failed.")
         }
     }
-}
-
-extension ViewController: UITableViewDataSource {
 
     // MARK: - Table View Data Source
 
@@ -122,7 +120,7 @@ extension ViewController: UITableViewDataSource {
 
     // セルの内容を決める
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = UITableViewCell()
+        let cell = taskTableView.dequeueReusableCell(withIdentifier: "taskCell", for: indexPath)
         cell.textLabel?.text = self.tasksToShow[indexPath.row]
         return cell
     }
@@ -159,5 +157,44 @@ extension ViewController: UITableViewDataSource {
         }
         // taskTableViewを再読み込みする
         taskTableView.reloadData()
+    }
+
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let alertController = UIAlertController(title: "Edit Task", message: "", preferredStyle: UIAlertControllerStyle.alert)
+        let taskName = tasksToShow[indexPath.row]
+        alertController.addTextField(configurationHandler: {(textField: UITextField!) -> Void in
+            textField.text = taskName
+        })
+
+        // Editボタンを追加
+        let editAction = UIAlertAction(title: "EDIT", style: UIAlertActionStyle.default) { (action: UIAlertAction) in
+            let editedName = alertController.textFields?.first?.text
+            self.tasksToShow[indexPath.row] = editedName!
+            let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
+
+            // 先ほど取得したnameに合致するデータのみをfetchするようにfetchRequestを作成
+            let fetchRequest: NSFetchRequest<Task> = Task.fetchRequest()
+            fetchRequest.predicate = NSPredicate(format: "name = %@", taskName)
+
+            // そのfetchRequestを満たすデータをfetchして、それに代入する
+            do {
+                let task = try context.fetch(fetchRequest)
+                task[0].name = editedName
+            } catch {
+                print("Fetching Failed.")
+            }
+
+            // 上で作成したデータをデータベースに保存。
+            (UIApplication.shared.delegate as! AppDelegate).saveContext()
+
+            self.taskTableView.reloadData()
+        }
+        alertController.addAction(editAction)
+
+        // Cancelボタンを追加
+        let cancelAction = UIAlertAction(title: "CANCEL", style: UIAlertActionStyle.cancel, handler: nil)
+        alertController.addAction(cancelAction)
+
+        present(alertController, animated: true, completion: nil)
     }
 }

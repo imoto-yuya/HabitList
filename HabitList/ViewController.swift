@@ -16,7 +16,8 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
     @IBOutlet weak var taskTableView: UITableView!
     var plusButton: UIBarButtonItem?
     var tasks = [Task]()
-    var tasksToShow = [String]()
+    var tasksOfName = [String]()
+    var tasksOfCheck = [Bool]()
     var isEditState: Bool = false
 
     // MARK: - View Life Cycle
@@ -66,7 +67,8 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
                 let addName = textField.text
 
                 // ローカルデータの更新
-                self.tasksToShow.insert(addName!, at: 0)
+                self.tasksOfName.insert(addName!, at: 0)
+                self.tasksOfCheck.insert(false, at: 0)
                 self.taskTableView.insertRows(at: [IndexPath(row: 0, section:0)], with: UITableViewRowAnimation.right)
 
                 // CoreDataの更新
@@ -75,6 +77,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
                 let task = Task(context: context)
                 // 先ほど定義したTask型データのnameプロパティに入力、選択したデータを代入
                 task.name = addName!
+                task.check = false
                 // 上で作成したデータをデータベースに保存。
                 (UIApplication.shared.delegate as! AppDelegate).saveContext()
             }
@@ -108,10 +111,12 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
 
             // 最新のCoreDataにローカルデータを更新
             // tasksToShow配列を空にする。（同じデータを複数表示しないため）
-            tasksToShow = []
+            tasksOfName = []
+            tasksOfCheck = []
             // 先ほどfetchしたデータをtasksToShow配列に格納する
             for task in tasks {
-                tasksToShow.insert(task.name!, at: 0)
+                tasksOfName.insert(task.name!, at: 0)
+                tasksOfCheck.insert(task.check, at: 0)
             }
 
         } catch {
@@ -123,14 +128,19 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
 
     // セル数を決める
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return self.tasksToShow.count
+        return self.tasksOfName.count
     }
 
     // セルの内容を決める
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = taskTableView.dequeueReusableCell(withIdentifier: "taskCell", for: indexPath)
 
-        cell.textLabel?.text = self.tasksToShow[indexPath.row]
+        cell.textLabel?.text = self.tasksOfName[indexPath.row]
+        if self.tasksOfCheck[indexPath.row] {
+            cell.accessoryType = UITableViewCellAccessoryType.checkmark
+        } else {
+            cell.accessoryType = UITableViewCellAccessoryType.none
+        }
         return cell
     }
 
@@ -141,12 +151,14 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
 
     // セルの削除処理
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
+        let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
         if editingStyle == .delete {
             // 削除するタスク名
-            let deletedName = tasksToShow[indexPath.row]
+            let deletedName = tasksOfName[indexPath.row]
 
             // ローカルデータの更新
-            tasksToShow.remove(at: indexPath.row)
+            tasksOfName.remove(at: indexPath.row)
+            tasksOfCheck.remove(at: indexPath.row)
 
             // CoreDataの更新
             // 先ほど取得したnameに合致するデータのみをfetchするようにfetchRequestを作成
@@ -154,7 +166,6 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
             fetchRequest.predicate = NSPredicate(format: "name = %@", deletedName)
             // そのfetchRequestを満たすデータをfetchしてtask(配列だが要素を1種類しか持たない)に代入し、削除する
             do {
-                let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
                 let task = try context.fetch(fetchRequest)
                 context.delete(task[0])
             } catch {
@@ -169,9 +180,15 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
     }
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
+        // タップしたタスク名
+        let taskName = tasksOfName[indexPath.row]
+        // 先ほど取得したnameに合致するデータのみをfetchするようにfetchRequestを作成
+        let fetchRequest: NSFetchRequest<Task> = Task.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "name = %@", taskName)
+
         if isEditState {
             let alertController = UIAlertController(title: "Edit Task", message: "", preferredStyle: UIAlertControllerStyle.alert)
-            let taskName = tasksToShow[indexPath.row]
             alertController.addTextField(configurationHandler: {(textField: UITextField!) -> Void in
                 textField.text = taskName
             })
@@ -182,15 +199,11 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
                 let editedName = alertController.textFields?.first?.text
 
                 // ローカルデータの更新
-                self.tasksToShow[indexPath.row] = editedName!
+                self.tasksOfName[indexPath.row] = editedName!
 
                 // CoreDataの更新
-                // 先ほど取得したnameに合致するデータのみをfetchするようにfetchRequestを作成
-                let fetchRequest: NSFetchRequest<Task> = Task.fetchRequest()
-                fetchRequest.predicate = NSPredicate(format: "name = %@", taskName)
                 // そのfetchRequestを満たすデータをfetchして、それに代入する
                 do {
-                    let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
                     let task = try context.fetch(fetchRequest)
                     task[0].name = editedName
                 } catch {
@@ -208,6 +221,25 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
             alertController.addAction(cancelAction)
 
             present(alertController, animated: true, completion: nil)
+        } else {
+            // checkするかどうか決める
+            let isCheck = tasksOfCheck[indexPath.row] ? false : true
+
+            // ローカルデータの更新
+            tasksOfCheck[indexPath.row] = isCheck
+
+            // CoreDataの更新
+            do {
+                let task = try context.fetch(fetchRequest)
+                task[0].check = isCheck
+            } catch {
+                print("Fetching Failed.")
+            }
+
+            // 編集したcheckを保存
+            (UIApplication.shared.delegate as! AppDelegate).saveContext()
+
+            self.taskTableView.reloadData()
         }
     }
 }

@@ -242,4 +242,42 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
             self.taskTableView.reloadData()
         }
     }
+
+    func tableView(_ tableView: UITableView, canMoveRowAt indexPath: IndexPath) -> Bool {
+        return true
+    }
+
+    func tableView(_ tableView: UITableView, moveRowAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
+        let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
+        // 並び替えるタスク
+        let targetName = tasksOfName[sourceIndexPath.row]
+        let targetCheck = tasksOfCheck[sourceIndexPath.row]
+
+        if let index = tasksOfName.index(of: targetName) {
+            // ローカルデータの更新
+            tasksOfName.remove(at: index)
+            tasksOfCheck.remove(at: index)
+            tasksOfName.insert(targetName, at: destinationIndexPath.row)
+            tasksOfCheck.insert(targetCheck, at: destinationIndexPath.row)
+
+            // CoreDataの更新
+            // 先ほど取得したnameに合致するデータのみをfetchするようにfetchRequestを作成
+            let fetchRequest: NSFetchRequest<Task> = Task.fetchRequest()
+            // そのfetchRequestを満たすデータをfetchして、それに代入する
+            do {
+                tasks = try context.fetch(fetchRequest)
+                tasks.remove(at: index)
+
+                let targetTask = Task(context: context)
+                targetTask.name = targetName
+                targetTask.check = targetCheck
+                tasks.insert(targetTask, at: destinationIndexPath.row)
+            } catch {
+                print("Fetching Failed.")
+            }
+
+            // 編集したタスク名を保存
+            (UIApplication.shared.delegate as! AppDelegate).saveContext()
+        }
+    }
 }

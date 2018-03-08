@@ -62,13 +62,19 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
         // Addボタンを追加
         let addAction = UIAlertAction(title: "ADD", style: UIAlertActionStyle.default) { (action: UIAlertAction) in
             if let textField = alertController.textFields?.first {
-                self.tasksToShow.insert(textField.text!, at: 0)
+                // 追加するタスク名
+                let addName = textField.text
+
+                // ローカルデータの更新
+                self.tasksToShow.insert(addName!, at: 0)
                 self.taskTableView.insertRows(at: [IndexPath(row: 0, section:0)], with: UITableViewRowAnimation.right)
+
+                // CoreDataの更新
                 let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
                 // taskにTask(データベースのエンティティです)型オブジェクトを代入
                 let task = Task(context: context)
                 // 先ほど定義したTask型データのnameプロパティに入力、選択したデータを代入
-                task.name = textField.text!
+                task.name = addName!
                 // 上で作成したデータをデータベースに保存。
                 (UIApplication.shared.delegate as! AppDelegate).saveContext()
             }
@@ -100,9 +106,9 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
             let fetchRequest: NSFetchRequest<Task> = Task.fetchRequest()
             tasks = try context.fetch(fetchRequest)
 
+            // 最新のCoreDataにローカルデータを更新
             // tasksToShow配列を空にする。（同じデータを複数表示しないため）
             tasksToShow = []
-
             // 先ほどfetchしたデータをtasksToShow配列に格納する
             for task in tasks {
                 tasksToShow.insert(task.name!, at: 0)
@@ -135,28 +141,28 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
 
     // セルの削除処理
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
-        let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
-
         if editingStyle == .delete {
-            // 削除したいデータのみをfetchする
-            // 削除したいデータのnameを取得
+            // 削除するタスク名
             let deletedName = tasksToShow[indexPath.row]
+
+            // ローカルデータの更新
+            tasksToShow.remove(at: indexPath.row)
+
+            // CoreDataの更新
             // 先ほど取得したnameに合致するデータのみをfetchするようにfetchRequestを作成
             let fetchRequest: NSFetchRequest<Task> = Task.fetchRequest()
             fetchRequest.predicate = NSPredicate(format: "name = %@", deletedName)
-            // そのfetchRequestを満たすデータをfetchしてtask（配列だが要素を1種類しか持たない）に代入し、削除する
+            // そのfetchRequestを満たすデータをfetchしてtask(配列だが要素を1種類しか持たない)に代入し、削除する
             do {
+                let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
                 let task = try context.fetch(fetchRequest)
                 context.delete(task[0])
             } catch {
                 print("Fetching Failed.")
             }
 
-            // 削除したあとのデータを保存する
+            // 削除したタスクを保存する
             (UIApplication.shared.delegate as! AppDelegate).saveContext()
-
-            // 削除後の全データをfetchする
-            getData()
         }
         // taskTableViewを再読み込みする
         taskTableView.reloadData()
@@ -172,23 +178,25 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
 
             // Editボタンを追加
             let editAction = UIAlertAction(title: "EDIT", style: UIAlertActionStyle.default) { (action: UIAlertAction) in
+                // 編集したタスク名
                 let editedName = alertController.textFields?.first?.text
-                self.tasksToShow[indexPath.row] = editedName!
-                let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
 
+                // ローカルデータの更新
+                self.tasksToShow[indexPath.row] = editedName!
+
+                // CoreDataの更新
                 // 先ほど取得したnameに合致するデータのみをfetchするようにfetchRequestを作成
                 let fetchRequest: NSFetchRequest<Task> = Task.fetchRequest()
                 fetchRequest.predicate = NSPredicate(format: "name = %@", taskName)
-
                 // そのfetchRequestを満たすデータをfetchして、それに代入する
                 do {
+                    let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
                     let task = try context.fetch(fetchRequest)
                     task[0].name = editedName
                 } catch {
                     print("Fetching Failed.")
                 }
-
-                // 上で作成したデータをデータベースに保存。
+                // 編集したタスク名を保存
                 (UIApplication.shared.delegate as! AppDelegate).saveContext()
 
                 self.taskTableView.reloadData()

@@ -17,6 +17,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
     var plusButton: UIBarButtonItem?
     var tasks = [Task]()
     var tasksToShow = [String]()
+    var isEditState: Bool = false
 
     // MARK: - View Life Cycle
 
@@ -41,9 +42,10 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
 
         // 自分が持っているテーブルビューのeditingを更新する
         self.taskTableView.setEditing(editing, animated: animated)
+        isEditState = editing
 
         // 通常・編集モードの切り替え
-        if editing {
+        if isEditState {
             // プラスボタンをナビゲーションバーの左側へ表示させる。
             self.navigationItem.setLeftBarButton(self.plusButton, animated: true)
         } else {
@@ -121,6 +123,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
     // セルの内容を決める
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = taskTableView.dequeueReusableCell(withIdentifier: "taskCell", for: indexPath)
+
         cell.textLabel?.text = self.tasksToShow[indexPath.row]
         return cell
     }
@@ -136,9 +139,9 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
 
         if editingStyle == .delete {
             // 削除したいデータのみをfetchする
-            // 削除したいデータのcategoryとnameを取得
+            // 削除したいデータのnameを取得
             let deletedName = tasksToShow[indexPath.row]
-            // 先ほど取得したcategoryとnameに合致するデータのみをfetchするようにfetchRequestを作成
+            // 先ほど取得したnameに合致するデータのみをfetchするようにfetchRequestを作成
             let fetchRequest: NSFetchRequest<Task> = Task.fetchRequest()
             fetchRequest.predicate = NSPredicate(format: "name = %@", deletedName)
             // そのfetchRequestを満たすデータをfetchしてtask（配列だが要素を1種類しか持たない）に代入し、削除する
@@ -160,41 +163,43 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
     }
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let alertController = UIAlertController(title: "Edit Task", message: "", preferredStyle: UIAlertControllerStyle.alert)
-        let taskName = tasksToShow[indexPath.row]
-        alertController.addTextField(configurationHandler: {(textField: UITextField!) -> Void in
-            textField.text = taskName
-        })
+        if isEditState {
+            let alertController = UIAlertController(title: "Edit Task", message: "", preferredStyle: UIAlertControllerStyle.alert)
+            let taskName = tasksToShow[indexPath.row]
+            alertController.addTextField(configurationHandler: {(textField: UITextField!) -> Void in
+                textField.text = taskName
+            })
 
-        // Editボタンを追加
-        let editAction = UIAlertAction(title: "EDIT", style: UIAlertActionStyle.default) { (action: UIAlertAction) in
-            let editedName = alertController.textFields?.first?.text
-            self.tasksToShow[indexPath.row] = editedName!
-            let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
+            // Editボタンを追加
+            let editAction = UIAlertAction(title: "EDIT", style: UIAlertActionStyle.default) { (action: UIAlertAction) in
+                let editedName = alertController.textFields?.first?.text
+                self.tasksToShow[indexPath.row] = editedName!
+                let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
 
-            // 先ほど取得したnameに合致するデータのみをfetchするようにfetchRequestを作成
-            let fetchRequest: NSFetchRequest<Task> = Task.fetchRequest()
-            fetchRequest.predicate = NSPredicate(format: "name = %@", taskName)
+                // 先ほど取得したnameに合致するデータのみをfetchするようにfetchRequestを作成
+                let fetchRequest: NSFetchRequest<Task> = Task.fetchRequest()
+                fetchRequest.predicate = NSPredicate(format: "name = %@", taskName)
 
-            // そのfetchRequestを満たすデータをfetchして、それに代入する
-            do {
-                let task = try context.fetch(fetchRequest)
-                task[0].name = editedName
-            } catch {
-                print("Fetching Failed.")
+                // そのfetchRequestを満たすデータをfetchして、それに代入する
+                do {
+                    let task = try context.fetch(fetchRequest)
+                    task[0].name = editedName
+                } catch {
+                    print("Fetching Failed.")
+                }
+
+                // 上で作成したデータをデータベースに保存。
+                (UIApplication.shared.delegate as! AppDelegate).saveContext()
+
+                self.taskTableView.reloadData()
             }
+            alertController.addAction(editAction)
 
-            // 上で作成したデータをデータベースに保存。
-            (UIApplication.shared.delegate as! AppDelegate).saveContext()
+            // Cancelボタンを追加
+            let cancelAction = UIAlertAction(title: "CANCEL", style: UIAlertActionStyle.cancel, handler: nil)
+            alertController.addAction(cancelAction)
 
-            self.taskTableView.reloadData()
+            present(alertController, animated: true, completion: nil)
         }
-        alertController.addAction(editAction)
-
-        // Cancelボタンを追加
-        let cancelAction = UIAlertAction(title: "CANCEL", style: UIAlertActionStyle.cancel, handler: nil)
-        alertController.addAction(cancelAction)
-
-        present(alertController, animated: true, completion: nil)
     }
 }

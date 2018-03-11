@@ -61,7 +61,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
             if let textField = alertController.textFields?.first {
                 // タスクを追加する処理
                 self.taskmanager.addNewTask(textField.text!)
-
+                // taskTableViewにタスクを追加する
                 self.taskTableView.insertRows(at: [IndexPath(row: 0, section:0)], with: UITableViewRowAnimation.right)
             }
         }
@@ -92,7 +92,10 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = taskTableView.dequeueReusableCell(withIdentifier: "taskCell", for: indexPath)
 
+        // セルのテキストを決める
         cell.textLabel?.text = taskmanager.tasks[indexPath.row].name
+
+        // セルのチェックを決める
         if taskmanager.tasks[indexPath.row].check {
             cell.accessoryType = UITableViewCellAccessoryType.checkmark
         } else {
@@ -120,21 +123,18 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
         taskTableView.reloadData()
     }
 
+    // セルをタップしたときの処理
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        // タップしたタスク名
-        let taskName = taskmanager.tasks[indexPath.row].name
-
         if tableView.isEditing {
             let alertController = UIAlertController(title: "Edit Task", message: "", preferredStyle: UIAlertControllerStyle.alert)
             alertController.addTextField(configurationHandler: {(textField: UITextField!) -> Void in
-                textField.text = taskName
+                textField.text = self.taskmanager.tasks[indexPath.row].name
             })
 
             // Editボタンを追加
             let editAction = UIAlertAction(title: "EDIT", style: UIAlertActionStyle.default) { (action: UIAlertAction) in
                 // 編集したタスク名
                 self.taskmanager.editTask((alertController.textFields?.first?.text)!, indexPath.row)
-                self.taskTableView.reloadData()
             }
             alertController.addAction(editAction)
 
@@ -146,10 +146,11 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
         } else {
             // checkするかどうか決める
             taskmanager.swichCheck(indexPath.row)
-            self.taskTableView.reloadData()
         }
+        taskTableView.reloadData()
     }
 
+    // 全セルの並び替えを許可
     func tableView(_ tableView: UITableView, canMoveRowAt indexPath: IndexPath) -> Bool {
         return true
     }

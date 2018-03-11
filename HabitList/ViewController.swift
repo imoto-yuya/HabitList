@@ -133,9 +133,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
             // Editボタンを追加
             let editAction = UIAlertAction(title: "EDIT", style: UIAlertActionStyle.default) { (action: UIAlertAction) in
                 // 編集したタスク名
-                let task = self.taskmanager.getTask(indexPath.row)
-                task.name = alertController.textFields?.first?.text
-                self.taskmanager.editTask(task, indexPath.row)
+                self.taskmanager.editTask((alertController.textFields?.first?.text)!, indexPath.row)
                 self.taskTableView.reloadData()
             }
             alertController.addAction(editAction)

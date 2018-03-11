@@ -33,7 +33,7 @@ class TaskManager {
         }
     }
 
-    func getTask(_ index: Int) -> Task {
+    func copyTask(_ index: Int) -> Task {
         let outTask = Task(context: context)
         outTask.name = tasks[index].name
         outTask.check = tasks[index].check
@@ -45,13 +45,6 @@ class TaskManager {
         tasks.insert(addTask, at: insertIndex)
         updateOrder()
         (UIApplication.shared.delegate as! AppDelegate).saveContext()
-    }
-
-    func addNewTask(_ name: String) {
-        let task = Task(context: context)
-        task.name = name
-        task.check = false
-        insertTask(task, 0)
     }
 
     func deleteTask(_ index: Int) {
@@ -66,13 +59,22 @@ class TaskManager {
         (UIApplication.shared.delegate as! AppDelegate).saveContext()
     }
 
-    func editTask(_ editTask: Task, _ index: Int) {
+    func addNewTask(_ name: String) {
+        let task = Task(context: context)
+        task.name = name
+        task.check = false
+        insertTask(task, 0)
+    }
+
+    func editTask(_ name: String, _ index: Int) {
+        let editTask = copyTask(index)
+        editTask.name = name
         deleteTask(index)
         insertTask(editTask, index)
     }
 
     func sortTask(_ sourceIndexPath: Int, _ destinationIndexPath: Int) {
-        let task = getTask(sourceIndexPath)
+        let task = copyTask(sourceIndexPath)
         deleteTask(sourceIndexPath)
         insertTask(task, destinationIndexPath)
     }

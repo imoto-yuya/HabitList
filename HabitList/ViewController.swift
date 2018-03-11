@@ -16,7 +16,6 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
     @IBOutlet weak var taskTableView: UITableView!
     var taskmanager = TaskManager()
     var plusButton: UIBarButtonItem?
-    var isEditState: Bool = false
 
     // MARK: - View Life Cycle
 
@@ -41,10 +40,9 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
 
         // 自分が持っているテーブルビューのeditingを更新する
         self.taskTableView.setEditing(editing, animated: animated)
-        isEditState = editing
 
         // 通常・編集モードの切り替え
-        if isEditState {
+        if editing {
             // プラスボタンをナビゲーションバーの左側へ表示させる。
             self.navigationItem.setLeftBarButton(self.plusButton, animated: true)
         } else {
@@ -126,7 +124,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
         // タップしたタスク名
         let taskName = taskmanager.tasks[indexPath.row].name
 
-        if isEditState {
+        if tableView.isEditing {
             let alertController = UIAlertController(title: "Edit Task", message: "", preferredStyle: UIAlertControllerStyle.alert)
             alertController.addTextField(configurationHandler: {(textField: UITextField!) -> Void in
                 textField.text = taskName

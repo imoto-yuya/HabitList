@@ -11,6 +11,9 @@ import UIKit
 import CoreData
 
 class TaskManager {
+    static let taskManager = TaskManager()
+    private init() {}
+
     var context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
     var tasks: [Task] = []
 

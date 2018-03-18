@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		FA6A3EE9205176FE009320E3 /* TaskManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA6A3EE8205176FE009320E3 /* TaskManager.swift */; };
+		FA6A3EEB205C28A9009320E3 /* TimeManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA6A3EEA205C28A9009320E3 /* TimeManager.swift */; };
 		FAE73489203DC52400FC34C9 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAE73488203DC52400FC34C9 /* AppDelegate.swift */; };
 		FAE7348B203DC52400FC34C9 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAE7348A203DC52400FC34C9 /* ViewController.swift */; };
 		FAE7348E203DC52400FC34C9 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = FAE7348C203DC52400FC34C9 /* Main.storyboard */; };
@@ -37,6 +38,7 @@
 
 /* Begin PBXFileReference section */
 		FA6A3EE8205176FE009320E3 /* TaskManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskManager.swift; sourceTree = "<group>"; };
+		FA6A3EEA205C28A9009320E3 /* TimeManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeManager.swift; sourceTree = "<group>"; };
 		FAE73485203DC52400FC34C9 /* HabitList.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HabitList.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		FAE73488203DC52400FC34C9 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		FAE7348A203DC52400FC34C9 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -103,6 +105,7 @@
 			children = (
 				FAE73488203DC52400FC34C9 /* AppDelegate.swift */,
 				FAE7348A203DC52400FC34C9 /* ViewController.swift */,
+				FA6A3EEA205C28A9009320E3 /* TimeManager.swift */,
 				FAE7348C203DC52400FC34C9 /* Main.storyboard */,
 				FA6A3EE8205176FE009320E3 /* TaskManager.swift */,
 				FAE73492203DC52400FC34C9 /* Assets.xcassets */,
@@ -268,6 +271,7 @@
 				FAE7348B203DC52400FC34C9 /* ViewController.swift in Sources */,
 				FAE73489203DC52400FC34C9 /* AppDelegate.swift in Sources */,
 				FA6A3EE9205176FE009320E3 /* TaskManager.swift in Sources */,
+				FA6A3EEB205C28A9009320E3 /* TimeManager.swift in Sources */,
 				FAE73491203DC52400FC34C9 /* HabitList.xcdatamodeld in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

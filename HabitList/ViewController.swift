@@ -14,7 +14,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
     // MARK: - Properties
 
     @IBOutlet weak var taskTableView: UITableView!
-    var taskmanager = TaskManager()
+    var taskmanager: TaskManager = TaskManager.taskManager
     var plusButton: UIBarButtonItem?
 
     // MARK: - View Life Cycle

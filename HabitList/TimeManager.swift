@@ -9,6 +9,14 @@
 import Foundation
 
 class TimeManager {
+    // Singleton
+    static let timeManager = TimeManager()
+    private init() {
+        userDefaults.register(defaults: ["day" : getDateComponents(Date()).day!])
+    }
+
+    // MARK: - Properties
+    let userDefaults = UserDefaults.standard
 
     enum Week :Int {
         case Sunday = 1     // 日曜日
@@ -18,6 +26,23 @@ class TimeManager {
         case Thursday = 5   // 木曜日
         case Friday = 6     // 金曜日
         case Saturday = 7   // 土曜日
+    }
+
+    func getDateComponents(_ date: Date) -> DateComponents {
+        let calender = Calendar.current
+        let components = calender.dateComponents([.year, .month, .day, .weekday, .hour, .minute, .second], from: date)
+        return components
+    }
+
+    func isChangeDate() -> Bool {
+        let currentDay = getDateComponents(Date()).day
+        let saveDay = userDefaults.integer(forKey: "day")
+        if currentDay != saveDay {
+            userDefaults.set(currentDay, forKey: "day")
+            return true
+        }
+
+        return false
     }
 
     func nextFireDate() -> Date {

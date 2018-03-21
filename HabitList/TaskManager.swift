@@ -62,6 +62,13 @@ class TaskManager {
         (UIApplication.shared.delegate as! AppDelegate).saveContext()
     }
 
+    func clearCheck() {
+        for task in tasks {
+            task.check = false
+        }
+        (UIApplication.shared.delegate as! AppDelegate).saveContext()
+    }
+
     func addNewTask(_ name: String) {
         let task = Task(context: context)
         task.name = name

@@ -11,6 +11,9 @@ import UIKit
 import CoreData
 
 class TaskManager {
+    static let taskManager = TaskManager()
+    private init() {}
+
     var context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
     var tasks: [Task] = []
 
@@ -56,6 +59,13 @@ class TaskManager {
 
     func swichCheck(_ index: Int) {
         tasks[index].check = tasks[index].check ? false : true
+        (UIApplication.shared.delegate as! AppDelegate).saveContext()
+    }
+
+    func clearCheck() {
+        for task in tasks {
+            task.check = false
+        }
         (UIApplication.shared.delegate as! AppDelegate).saveContext()
     }
 

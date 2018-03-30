@@ -14,7 +14,8 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
     // MARK: - Properties
 
     @IBOutlet weak var taskTableView: UITableView!
-    var taskmanager = TaskManager()
+    var taskmanager: TaskManager = TaskManager.taskManager
+    var timemanager: TimeManager = TimeManager.timeManager
     var plusButton: UIBarButtonItem?
 
     // MARK: - View Life Cycle
@@ -75,10 +76,19 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
     }
 
     override func viewWillAppear(_ animated: Bool) {
+        NotificationCenter.default.addObserver(self, selector: #selector(willEnterForeground), name: .UIApplicationWillEnterForeground, object: nil)
         // CoreDataからデータをfetchしてくる
         taskmanager.fetchTask()
         // taskTableViewを再読み込みする
         taskTableView.reloadData()
+    }
+
+    @objc func willEnterForeground() {
+        //画面更新処理など
+        if timemanager.isChangeDate() {
+            taskmanager.clearCheck()
+            taskTableView.reloadData()
+        }
     }
 
     // MARK: - Table View Data Source

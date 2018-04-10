@@ -145,6 +145,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
             let editAction = UIAlertAction(title: "EDIT", style: UIAlertActionStyle.default) { (action: UIAlertAction) in
                 // 編集したタスク名
                 self.taskmanager.editTask((alertController.textFields?.first?.text)!, indexPath.row)
+                self.taskTableView.reloadData()
             }
             alertController.addAction(editAction)
 
@@ -156,8 +157,8 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
         } else {
             // checkするかどうか決める
             taskmanager.swichCheck(indexPath.row)
+            taskTableView.reloadData()
         }
-        taskTableView.reloadData()
     }
 
     // 全セルの並び替えを許可
